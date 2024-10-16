@@ -668,7 +668,7 @@ export async function proxyTs(url: string, headers: any, req, res: http.ServerRe
         headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36",
             ...headers,
-            ...corsOptionsHeaders,
+            // ...corsOptionsHeaders,
         },
     };
 
@@ -682,16 +682,16 @@ export async function proxyTs(url: string, headers: any, req, res: http.ServerRe
                 }
 
                 // Set CORS headers manually
-                // res.setHeader("Access-Control-Allow-Origin", "*");
-                // res.setHeader("Access-Control-Allow-Headers", "*");
-                // res.setHeader("Access-Control-Allow-Methods", "*");
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Access-Control-Allow-Headers", "*");
+                res.setHeader("Access-Control-Allow-Methods", "*");
 
-                // 删除 Content-Length 和 Content-Range 头
-                res.removeHeader("Content-Length");
-                res.removeHeader("Content-Range");
-                
+                // 删除可能影响响应的头
+                delete r.headers["Content-Length"];
+                delete r.headers["Content-Range"];
+    
                 // 设置 Accept-Ranges 头为 "none"
-                res.setHeader("Accept-Ranges", "none");
+                r.headers["Accept-Ranges"] = "none";
                 
                 res.writeHead(r.statusCode ?? 200, r.headers);
 
@@ -711,16 +711,16 @@ export async function proxyTs(url: string, headers: any, req, res: http.ServerRe
                 }
                 
                 // Set CORS headers manually
-                // res.setHeader("Access-Control-Allow-Origin", "*");
-                // res.setHeader("Access-Control-Allow-Headers", "*");
-                // res.setHeader("Access-Control-Allow-Methods", "*");
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Access-Control-Allow-Headers", "*");
+                res.setHeader("Access-Control-Allow-Methods", "*");
 
-                // 删除 Content-Length 和 Content-Range 头
-                res.removeHeader("Content-Length");
-                res.removeHeader("Content-Range");
-                
+                // 删除可能影响响应的头
+                delete r.headers["Content-Length"];
+                delete r.headers["Content-Range"];
+    
                 // 设置 Accept-Ranges 头为 "none"
-                res.setHeader("Accept-Ranges", "none");
+                r.headers["Accept-Ranges"] = "none";
                 
                 res.writeHead(r.statusCode ?? 200, r.headers);
 
