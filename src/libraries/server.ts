@@ -672,10 +672,12 @@ export async function proxyTs(url: string, headers: any, req, res: http.ServerRe
                 if (!r.headers["content-type"]) {
                     r.headers["content-type"] = "video/mp2t";
                 }
-                // Add CORS headers to allow cross-origin requests
-                r.headers["Access-Control-Allow-Origin"] = "*";
-                r.headers["Access-Control-Allow-Methods"] = "GET, HEAD, POST, OPTIONS";
-                r.headers["Access-Control-Max-Age"] = "86400";
+
+                // Set CORS headers manually
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Access-Control-Allow-Headers", "*");
+                res.setHeader("Access-Control-Allow-Methods", "*");
+                
                 res.writeHead(r.statusCode ?? 200, r.headers);
 
                 r.pipe(res, {
@@ -692,10 +694,12 @@ export async function proxyTs(url: string, headers: any, req, res: http.ServerRe
                 if (!r.headers["content-type"]) {
                     r.headers["content-type"] = "video/mp2t";
                 }
-                // Add CORS headers to allow cross-origin requests
-                r.headers["Access-Control-Allow-Origin"] = "*";
-                r.headers["Access-Control-Allow-Methods"] = "GET, HEAD, POST, OPTIONS";
-                r.headers["Access-Control-Max-Age"] = "86400";
+                
+                // Set CORS headers manually
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Access-Control-Allow-Headers", "*");
+                res.setHeader("Access-Control-Allow-Methods", "*");
+                
                 res.writeHead(r.statusCode ?? 200, r.headers);
 
                 r.pipe(res, {
