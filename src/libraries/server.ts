@@ -601,6 +601,10 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
         const lines = m3u8.split("\n");
         const newLines: string[] = [];
         for (const line of lines) {
+            if (line.trim() === "") {
+                // 跳过空行
+                continue;
+            }
             if (line.startsWith("#")) {
                 if (line.startsWith("#EXT-X-KEY:")) {
                     const regex = /https?:\/\/[^\""\s]+/g;
