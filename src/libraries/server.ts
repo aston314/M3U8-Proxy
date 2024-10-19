@@ -577,7 +577,17 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 continue;
             }
             if (line.startsWith("#")) {
-                if (line.startsWith("#EXT-X-KEY:")) {
+                if (line.includes('URI="')) {
+                    const regex = /URI="([^"]+)"/g;
+                    const match = regex.exec(line);
+                    if (match) {
+                        const originalUri = match[1];
+                        const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                        newLines.push(line.replace(regex, `URI="${url}"`));
+                    } else {
+                        newLines.push(line);
+                    }
+                } else if (line.startsWith("#EXT-X-KEY:")) {
                     const regex = /https?:\/\/[^\""\s]+/g;
                     const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
                     newLines.push(line.replace(regex, url));
@@ -610,7 +620,17 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 continue;
             }
             if (line.startsWith("#")) {
-                if (line.startsWith("#EXT-X-KEY:")) {
+                if (line.includes('URI="')) {
+                    const regex = /URI="([^"]+)"/g;
+                    const match = regex.exec(line);
+                    if (match) {
+                        const originalUri = match[1];
+                        const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                        newLines.push(line.replace(regex, `URI="${url}"`));
+                    } else {
+                        newLines.push(line);
+                    }
+                } else if (line.startsWith("#EXT-X-KEY:")) {
                     const regex = /https?:\/\/[^\""\s]+/g;
                     const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
                     newLines.push(line.replace(regex, url));
