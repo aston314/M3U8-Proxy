@@ -650,6 +650,108 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //     }
 // }
 
+// export async function proxyM3U8(url: string, headers: any, res: http.ServerResponse) {
+//     const req = await axios(url, {
+//         headers: headers,
+//     }).catch((err) => {
+//         res.writeHead(500);
+//         res.end(err.message);
+//         return null;
+//     });
+//     if (!req) {
+//         return;
+//     }
+
+//     const m3u8 = req.data;
+//     if (m3u8.includes("RESOLUTION=")) {
+//         // Deals with the master m3u8 and replaces all sub-m3u8 files (quality m3u8 files basically) to use the m3u8 proxy.
+//         // So if there is 360p, 480p, etc. Instead, the URL's of those m3u8 files will be replaced with the proxy URL.
+//         const lines = m3u8.split("\n");
+//         const newLines: string[] = [];
+//         for (const line of lines) {
+//             if (line.trim() === "") {
+//                 // Skip empty lines
+//                 continue;
+//             }
+//             if (line.startsWith("#EXT-X-KEY:")) {
+//                 const regex = /https?:\/\/[^\""\s]+/g;
+//                 const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                 newLines.push(line.replace(regex, url));
+//             } else if (line.startsWith("#EXT-X-MEDIA:") && line.includes('URI="')) {
+//                 const regex = /URI="([^"]+)"/g;
+//                 const match = regex.exec(line);
+//                 if (match) {
+//                     const originalUri = match[1];
+//                     const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     newLines.push(line.replace(regex, `URI="${url}"`));
+//                 } else {
+//                     newLines.push(line);
+//                 }
+//             } else if (line.startsWith("#")) {
+//                 newLines.push(line);
+//             } else {
+//                 const uri = new URL(line, url);
+//                 newLines.push(`${web_server_url + "/m3u8-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+//             }
+//         }
+
+//         ["Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers", "Access-Control-Max-Age", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Vary", "Referer", "Server", "x-cache", "via", "x-amz-cf-pop", "x-amz-cf-id"].map((header) => res.removeHeader(header));
+
+//         // You need these headers so that the client recognizes the response as an m3u8.
+//         res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+//         res.setHeader("Access-Control-Allow-Origin", "*");
+//         res.setHeader("Access-Control-Allow-Headers", "*");
+//         res.setHeader("Access-Control-Allow-Methods", "*");
+
+//         res.end(newLines.join("\n"));
+//         return;
+//     } else {
+//         // Deals with each individual quality. Replaces the TS files with the proxy URL.
+//         const lines = m3u8.split("\n");
+//         const newLines: string[] = [];
+//         for (const line of lines) {
+//             if (line.trim() === "") {
+//                 // Skip empty lines
+//                 continue;
+//             }
+//             if (line.startsWith("#EXT-X-KEY:")) {
+//                 const regex = /https?:\/\/[^\""\s]+/g;
+//                 const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                 newLines.push(line.replace(regex, url));
+//             } else if (line.startsWith("#EXT-X-MEDIA:") && line.includes('URI="')) {
+//                 const regex = /URI="([^"]+)"/g;
+//                 const match = regex.exec(line);
+//                 if (match) {
+//                     const originalUri = match[1];
+//                     const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     newLines.push(line.replace(regex, `URI="${url}"`));
+//                 } else {
+//                     newLines.push(line);
+//                 }
+//             } else if (line.startsWith("#")) {
+//                 newLines.push(line);
+//             } else {
+//                 const uri = new URL(line, url);
+//                 // CORS is needed since the TS files are not on the same domain as the client.
+//                 // This replaces each TS file to use a TS proxy with the headers attached.
+//                 // So each TS request will use the headers inputted to the proxy
+//                 newLines.push(`${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+//             }
+//         }
+
+//         // Removes headers that are not needed for the client.
+//         ["Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers", "Access-Control-Max-Age", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Vary", "Referer", "Server", "x-cache", "via", "x-amz-cf-pop", "x-amz-cf-id"].map((header) => res.removeHeader(header));
+
+//         // You need these headers so that the client recognizes the response as an m3u8.
+//         res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+//         res.setHeader("Access-Control-Allow-Origin", "*");
+//         res.setHeader("Access-Control-Allow-Headers", "*");
+//         res.setHeader("Access-Control-Allow-Methods", "*");
+
+//         res.end(newLines.join("\n"));
+//         return;
+//     }
+// }
 export async function proxyM3U8(url: string, headers: any, res: http.ServerResponse) {
     const req = await axios(url, {
         headers: headers,
@@ -662,42 +764,70 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
         return;
     }
 
+    // 提取基础URL的函数
+    function getBaseUrl(url: string): string {
+        const urlObj = new URL(url);
+        return `${urlObj.protocol}//${urlObj.host}`;
+    }
+
+    // 统一处理URL的函数
+    function processUrl(originalUrl: string, baseUrl: string): string {
+        if (originalUrl.startsWith('http://') || originalUrl.startsWith('https://')) {
+            // 完整URL，保持原样
+            return originalUrl;
+        } else if (originalUrl.startsWith('/')) {
+            // 根路径，与域名组合
+            return `${getBaseUrl(baseUrl)}${originalUrl}`;
+        } else {
+            // 相对路径，与完整的基础URL组合
+            const urlObj = new URL(baseUrl);
+            const pathParts = urlObj.pathname.split('/');
+            pathParts.pop(); // 移除最后一个文件名部分
+            const basePath = pathParts.join('/');
+            return `${getBaseUrl(baseUrl)}${basePath}/${originalUrl}`;
+        }
+    }
+
     const m3u8 = req.data;
     if (m3u8.includes("RESOLUTION=")) {
-        // Deals with the master m3u8 and replaces all sub-m3u8 files (quality m3u8 files basically) to use the m3u8 proxy.
-        // So if there is 360p, 480p, etc. Instead, the URL's of those m3u8 files will be replaced with the proxy URL.
         const lines = m3u8.split("\n");
         const newLines: string[] = [];
         for (const line of lines) {
             if (line.trim() === "") {
-                // Skip empty lines
                 continue;
             }
             if (line.startsWith("#EXT-X-KEY:")) {
-                const regex = /https?:\/\/[^\""\s]+/g;
-                const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
-                newLines.push(line.replace(regex, url));
+                const regex = /https?:\/\/[^\""\s]+|(?:\/[^\""\s]+)|(?:[^\""\s]+\.[\w]+)/g;
+                const match = regex.exec(line);
+                if (match) {
+                    const originalUrl = match[0];
+                    const processedUrl = processUrl(originalUrl, url);
+                    const proxyUrl = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    newLines.push(line.replace(originalUrl, proxyUrl));
+                } else {
+                    newLines.push(line);
+                }
             } else if (line.startsWith("#EXT-X-MEDIA:") && line.includes('URI="')) {
                 const regex = /URI="([^"]+)"/g;
                 const match = regex.exec(line);
                 if (match) {
                     const originalUri = match[1];
-                    const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
-                    newLines.push(line.replace(regex, `URI="${url}"`));
+                    const processedUrl = processUrl(originalUri, url);
+                    const proxyUrl = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    newLines.push(line.replace(regex, `URI="${proxyUrl}"`));
                 } else {
                     newLines.push(line);
                 }
             } else if (line.startsWith("#")) {
                 newLines.push(line);
             } else {
-                const uri = new URL(line, url);
-                newLines.push(`${web_server_url + "/m3u8-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+                const processedUrl = processUrl(line, url);
+                newLines.push(`${web_server_url + "/m3u8-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
             }
         }
 
         ["Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers", "Access-Control-Max-Age", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Vary", "Referer", "Server", "x-cache", "via", "x-amz-cf-pop", "x-amz-cf-id"].map((header) => res.removeHeader(header));
 
-        // You need these headers so that the client recognizes the response as an m3u8.
         res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Headers", "*");
@@ -706,43 +836,44 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
         res.end(newLines.join("\n"));
         return;
     } else {
-        // Deals with each individual quality. Replaces the TS files with the proxy URL.
         const lines = m3u8.split("\n");
         const newLines: string[] = [];
         for (const line of lines) {
             if (line.trim() === "") {
-                // Skip empty lines
                 continue;
             }
             if (line.startsWith("#EXT-X-KEY:")) {
-                const regex = /https?:\/\/[^\""\s]+/g;
-                const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
-                newLines.push(line.replace(regex, url));
+                const regex = /https?:\/\/[^\""\s]+|(?:\/[^\""\s]+)|(?:[^\""\s]+\.[\w]+)/g;
+                const match = regex.exec(line);
+                if (match) {
+                    const originalUrl = match[0];
+                    const processedUrl = processUrl(originalUrl, url);
+                    const proxyUrl = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    newLines.push(line.replace(originalUrl, proxyUrl));
+                } else {
+                    newLines.push(line);
+                }
             } else if (line.startsWith("#EXT-X-MEDIA:") && line.includes('URI="')) {
                 const regex = /URI="([^"]+)"/g;
                 const match = regex.exec(line);
                 if (match) {
                     const originalUri = match[1];
-                    const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
-                    newLines.push(line.replace(regex, `URI="${url}"`));
+                    const processedUrl = processUrl(originalUri, url);
+                    const proxyUrl = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    newLines.push(line.replace(regex, `URI="${proxyUrl}"`));
                 } else {
                     newLines.push(line);
                 }
             } else if (line.startsWith("#")) {
                 newLines.push(line);
             } else {
-                const uri = new URL(line, url);
-                // CORS is needed since the TS files are not on the same domain as the client.
-                // This replaces each TS file to use a TS proxy with the headers attached.
-                // So each TS request will use the headers inputted to the proxy
-                newLines.push(`${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+                const processedUrl = processUrl(line, url);
+                newLines.push(`${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
             }
         }
 
-        // Removes headers that are not needed for the client.
         ["Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Headers", "Access-Control-Max-Age", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Request-Method", "Access-Control-Request-Headers", "Origin", "Vary", "Referer", "Server", "x-cache", "via", "x-amz-cf-pop", "x-amz-cf-id"].map((header) => res.removeHeader(header));
 
-        // You need these headers so that the client recognizes the response as an m3u8.
         res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Headers", "*");
