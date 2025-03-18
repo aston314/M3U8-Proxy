@@ -292,7 +292,7 @@ function getHandler(options, proxy) {
             // Don't even try to proxy invalid hosts (such as /favicon.ico, /robots.txt)
 
             const uri = new URL(req.url ?? web_server_url, "http://localhost:3000");
-            if (uri.pathname === "/m") {
+            if (uri.pathname === "/m3u8-proxy") {
                 let headers = {};
                 try {
                     headers = JSON.parse(uri.searchParams.get("headers") ?? "{}");
@@ -303,7 +303,7 @@ function getHandler(options, proxy) {
                 }
                 const url = uri.searchParams.get("url");
                 return proxyM3U8(url ?? "", headers, res);
-            } else if (uri.pathname === "/ts") {
+            } else if (uri.pathname === "/ts-proxy") {
                 let headers = {};
                 try {
                     headers = JSON.parse(uri.searchParams.get("headers") ?? "{}");
@@ -579,7 +579,7 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //             if (line.startsWith("#")) {
 //                 if (line.startsWith("#EXT-X-KEY:")) {
 //                     const regex = /https?:\/\/[^\""\s]+/g;
-//                     const url = `${web_server_url}${"/ts?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                     newLines.push(line.replace(regex, url));
 //                 } else {
 //                     newLines.push(line);
@@ -589,14 +589,14 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //                 const match = regex.exec(line);
 //                 if (match) {
 //                     const originalUri = match[1];
-//                     const url = `${web_server_url}${"/m?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                     newLines.push(line.replace(regex, `URI="${url}"`));
 //                 } else {
 //                     newLines.push(line);
 //                 }
 //             } else {
 //                 const uri = new URL(line, url);
-//                 newLines.push(`${web_server_url + "/m?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+//                 newLines.push(`${web_server_url + "/m3u8-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
 //             }
 //         }
 
@@ -622,7 +622,7 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //             if (line.startsWith("#")) {
 //                 if (line.startsWith("#EXT-X-KEY:")) {
 //                     const regex = /https?:\/\/[^\""\s]+/g;
-//                     const url = `${web_server_url}${"/ts?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                     newLines.push(line.replace(regex, url));
 //                 } else {
 //                     newLines.push(line);
@@ -632,7 +632,7 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //                 // CORS is needed since the TS files are not on the same domain as the client.
 //                 // This replaces each TS file to use a TS proxy with the headers attached.
 //                 // So each TS request will use the headers inputted to the proxy
-//                 newLines.push(`${web_server_url}${"/ts?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+//                 newLines.push(`${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
 //             }
 //         }
 
@@ -675,14 +675,14 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //             }
 //             if (line.startsWith("#EXT-X-KEY:")) {
 //                 const regex = /https?:\/\/[^\""\s]+/g;
-//                 const url = `${web_server_url}${"/ts?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                 const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                 newLines.push(line.replace(regex, url));
 //             } else if (line.startsWith("#EXT-X-MEDIA:") && line.includes('URI="')) {
 //                 const regex = /URI="([^"]+)"/g;
 //                 const match = regex.exec(line);
 //                 if (match) {
 //                     const originalUri = match[1];
-//                     const url = `${web_server_url}${"/m?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                     newLines.push(line.replace(regex, `URI="${url}"`));
 //                 } else {
 //                     newLines.push(line);
@@ -691,7 +691,7 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //                 newLines.push(line);
 //             } else {
 //                 const uri = new URL(line, url);
-//                 newLines.push(`${web_server_url + "/m?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+//                 newLines.push(`${web_server_url + "/m3u8-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
 //             }
 //         }
 
@@ -716,14 +716,14 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //             }
 //             if (line.startsWith("#EXT-X-KEY:")) {
 //                 const regex = /https?:\/\/[^\""\s]+/g;
-//                 const url = `${web_server_url}${"/ts?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                 const url = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(regex.exec(line)?.[0] ?? "") + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                 newLines.push(line.replace(regex, url));
 //             } else if (line.startsWith("#EXT-X-MEDIA:") && line.includes('URI="')) {
 //                 const regex = /URI="([^"]+)"/g;
 //                 const match = regex.exec(line);
 //                 if (match) {
 //                     const originalUri = match[1];
-//                     const url = `${web_server_url}${"/m?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+//                     const url = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(originalUri) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
 //                     newLines.push(line.replace(regex, `URI="${url}"`));
 //                 } else {
 //                     newLines.push(line);
@@ -735,7 +735,7 @@ function createRateLimitChecker(CORSANYWHERE_RATELIMIT) {
 //                 // CORS is needed since the TS files are not on the same domain as the client.
 //                 // This replaces each TS file to use a TS proxy with the headers attached.
 //                 // So each TS request will use the headers inputted to the proxy
-//                 newLines.push(`${web_server_url}${"/ts?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+//                 newLines.push(`${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(uri.href) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
 //             }
 //         }
 
@@ -802,7 +802,7 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 if (match) {
                     const originalUrl = match[0];
                     const processedUrl = processUrl(originalUrl, url);
-                    const proxyUrl = `${web_server_url}${"/ts?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    const proxyUrl = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
                     newLines.push(line.replace(originalUrl, proxyUrl));
                 } else {
                     newLines.push(line);
@@ -813,7 +813,7 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 if (match) {
                     const originalUri = match[1];
                     const processedUrl = processUrl(originalUri, url);
-                    const proxyUrl = `${web_server_url}${"/m?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    const proxyUrl = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
                     newLines.push(line.replace(regex, `URI="${proxyUrl}"`));
                 } else {
                     newLines.push(line);
@@ -822,7 +822,7 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 newLines.push(line);
             } else {
                 const processedUrl = processUrl(line, url);
-                newLines.push(`${web_server_url + "/m?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+                newLines.push(`${web_server_url + "/m3u8-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
             }
         }
 
@@ -848,7 +848,7 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 if (match) {
                     const originalUrl = match[0];
                     const processedUrl = processUrl(originalUrl, url);
-                    const proxyUrl = `${web_server_url}${"/ts?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    const proxyUrl = `${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
                     newLines.push(line.replace(originalUrl, proxyUrl));
                 } else {
                     newLines.push(line);
@@ -859,7 +859,7 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 if (match) {
                     const originalUri = match[1];
                     const processedUrl = processUrl(originalUri, url);
-                    const proxyUrl = `${web_server_url}${"/m?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
+                    const proxyUrl = `${web_server_url}${"/m3u8-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`;
                     newLines.push(line.replace(regex, `URI="${proxyUrl}"`));
                 } else {
                     newLines.push(line);
@@ -868,7 +868,7 @@ export async function proxyM3U8(url: string, headers: any, res: http.ServerRespo
                 newLines.push(line);
             } else {
                 const processedUrl = processUrl(line, url);
-                newLines.push(`${web_server_url}${"/ts?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
+                newLines.push(`${web_server_url}${"/ts-proxy?url=" + encodeURIComponent(processedUrl) + "&headers=" + encodeURIComponent(JSON.stringify(headers))}`);
             }
         }
 
